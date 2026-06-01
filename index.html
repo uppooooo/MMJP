@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>MMO ドロップアイテム DB</title>
+    <title>MMO Database</title>
     <style>
         :root {
             --bg-primary: #1a1a2e;
@@ -40,7 +40,7 @@
         /* ヘッダー */
         .header {
             background: var(--bg-secondary);
-            padding: 16px;
+            padding: 12px 16px;
             text-align: center;
             border-bottom: 1px solid var(--border);
             position: sticky;
@@ -49,39 +49,56 @@
         }
 
         .header h1 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--accent);
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
 
-        .header .subtitle {
-            font-size: 0.75rem;
+        /* ページ切替タブ */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
             color: var(--text-secondary);
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .tab-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .tab-btn:active {
+            transform: scale(0.95);
         }
 
         /* 検索エリア */
         .search-area {
-            padding: 12px 16px;
+            padding: 10px 16px;
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border);
         }
 
-        .search-box {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
         .search-box input {
-            flex: 1;
+            width: 100%;
             padding: 10px 14px;
             border: 1px solid var(--border);
             border-radius: 8px;
             background: var(--bg-primary);
             color: var(--text-primary);
-            font-size: 16px; /* iOS zoom防止 */
+            font-size: 16px;
             outline: none;
-            transition: border-color 0.2s;
         }
 
         .search-box input:focus {
@@ -92,99 +109,62 @@
             color: var(--text-secondary);
         }
 
-        /* フィルター */
-        .filters {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 6px 12px;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            background: var(--bg-primary);
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .filter-btn.active {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: rgba(233, 69, 96, 0.1);
-        }
-
-        .filter-btn:active {
-            transform: scale(0.95);
-        }
-
         /* ステータスバー */
         .status-bar {
-            padding: 8px 16px;
-            font-size: 0.75rem;
+            padding: 6px 16px;
+            font-size: 0.7rem;
             color: var(--text-secondary);
             display: flex;
             justify-content: space-between;
-            align-items: center;
         }
 
-        .sync-info {
-            font-size: 0.7rem;
-        }
-
-        /* アイテムリスト */
-        .item-list {
+        /* ページコンテンツ */
+        .page {
+            display: none;
             padding: 0 12px 24px;
         }
 
-        .item-card {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border);
-            transition: transform 0.1s;
+        .page.active {
+            display: block;
         }
 
-        .item-card:active {
+        /* カード共通 */
+        .card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .card:active {
             transform: scale(0.98);
         }
 
-        .item-card .monster-name {
+        /* ===== ドロップリスト用 ===== */
+        .drop-card .monster-name {
             font-size: 0.7rem;
             color: var(--text-secondary);
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            margin-bottom: 3px;
         }
 
-        .item-card .monster-name::before {
-            content: '👾';
-            font-size: 0.8rem;
-        }
-
-        .item-card .item-name {
-            font-size: 1rem;
+        .drop-card .item-name {
+            font-size: 0.95rem;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
-        .item-card .item-meta {
+        .drop-card .meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .rarity-badge {
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.65rem;
             font-weight: 600;
-            text-transform: uppercase;
         }
 
         .rarity-common { background: rgba(176,176,176,0.2); color: var(--common); }
@@ -194,72 +174,126 @@
         .rarity-legendary { background: rgba(255,152,0,0.2); color: var(--legendary); }
 
         .drop-rate {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
         }
 
         .drop-rate strong {
             color: var(--text-primary);
-            font-size: 1.1rem;
         }
 
-        .item-card .note {
-            margin-top: 8px;
-            font-size: 0.75rem;
+        .note {
+            margin-top: 6px;
+            font-size: 0.7rem;
             color: var(--text-secondary);
             font-style: italic;
         }
 
-        /* ローディング */
-        .loading {
-            text-align: center;
-            padding: 40px;
+        /* ===== MIX公式DB用 ===== */
+        .mix-card .core-name {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .mix-card .core-info {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .mix-card .core-info span {
+            background: rgba(255,255,255,0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .mix-card .recipe {
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 0.75rem;
+        }
+
+        .mix-card .recipe-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .mix-card .recipe-label {
             color: var(--text-secondary);
         }
 
-        .loading .spinner {
-            width: 32px;
-            height: 32px;
+        .mix-card .recipe-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .mix-card .droppable {
+            display: inline-block;
+            background: rgba(76,175,80,0.2);
+            color: var(--uncommon);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            margin-left: 6px;
+        }
+
+        /* ===== 納品アイテムDB用 ===== */
+        .delivery-card .category {
+            font-size: 0.65rem;
+            color: var(--accent);
+            margin-bottom: 2px;
+        }
+
+        .delivery-card .item-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .delivery-card .detail-row {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .delivery-card .detail-row span {
+            background: rgba(255,255,255,0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ローディング・空状態 */
+        .loading, .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
             border: 3px solid var(--border);
             border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
-            margin: 0 auto 12px;
+            margin: 0 auto 10px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* エラー */
-        .error-msg {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--accent);
-        }
-
-        .error-msg .icon {
-            font-size: 2rem;
-            margin-bottom: 8px;
-        }
-
-        /* 空状態 */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-secondary);
-        }
-
-        .empty-state .icon {
-            font-size: 2rem;
-            margin-bottom: 8px;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* フッター */
         .footer {
             text-align: center;
-            padding: 16px;
-            font-size: 0.7rem;
+            padding: 12px;
+            font-size: 0.65rem;
             color: var(--text-secondary);
             border-top: 1px solid var(--border);
         }
@@ -267,209 +301,226 @@
 </head>
 <body>
     <header class="header">
-        <h1>⚔️ MMO ドロップアイテム DB</h1>
-        <p class="subtitle">モンスター別ドロップアイテム検索</p>
+        <h1>⚔️ MMO Database</h1>
+        <div class="tab-bar">
+            <button class="tab-btn active" data-page="drops">ドロップ</button>
+            <button class="tab-btn" data-page="mix">MIX公式</button>
+            <button class="tab-btn" data-page="delivery">納品アイテム</button>
+        </div>
     </header>
 
     <div class="search-area">
         <div class="search-box">
-            <input type="search" id="searchInput" placeholder="モンスター名 or アイテム名で検索..." autocomplete="off">
-        </div>
-        <div class="filters" id="rarityFilters">
-            <button class="filter-btn active" data-rarity="all">全て</button>
-            <button class="filter-btn" data-rarity="common">Common</button>
-            <button class="filter-btn" data-rarity="uncommon">Uncommon</button>
-            <button class="filter-btn" data-rarity="rare">Rare</button>
-            <button class="filter-btn" data-rarity="epic">Epic</button>
-            <button class="filter-btn" data-rarity="legendary">Legendary</button>
+            <input type="search" id="searchInput" placeholder="検索..." autocomplete="off">
         </div>
     </div>
 
     <div class="status-bar">
         <span id="resultCount">読み込み中...</span>
-        <span class="sync-info" id="syncInfo"></span>
+        <span id="syncInfo"></span>
     </div>
 
-    <main class="item-list" id="itemList">
-        <div class="loading">
-            <div class="spinner"></div>
-            <p>データを読み込み中...</p>
-        </div>
+    <!-- ドロップリスト -->
+    <main class="page active" id="page-drops">
+        <div class="loading"><div class="spinner"></div><p>読み込み中...</p></div>
+    </main>
+
+    <!-- MIX公式DB -->
+    <main class="page" id="page-mix">
+        <div class="loading"><div class="spinner"></div><p>読み込み中...</p></div>
+    </main>
+
+    <!-- 納品アイテムDB -->
+    <main class="page" id="page-delivery">
+        <div class="loading"><div class="spinner"></div><p>読み込み中...</p></div>
     </main>
 
     <footer class="footer">
         <p>Data synced from Google Spreadsheet via Firestore</p>
     </footer>
 
-    <!-- Firebase SDK (v9 compat) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
     <script>
         // ===== Firebase設定 =====
-        // ↓↓↓ ここを自分のFirebaseプロジェクトの値に書き換えてください ↓↓↓
-        const firebaseConfig = {
-  apiKey: "AIzaSyBQbmQPaXDjItAGQx0QBPpZKUXrByAHIXs",
-  authDomain: "uppooooo.firebaseapp.com",
-  projectId: "uppooooo",
-  storageBucket: "uppooooo.firebasestorage.app",
-  messagingSenderId: "299004426367",
-  appId: "1:299004426367:web:64a30627d61b40da4de74a"
-};
-        // ↑↑↑ ここまで書き換え ↑↑↑
+        var firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-        // Firebase初期化
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        var db = firebase.firestore();
 
-        // ===== アプリケーション =====
-        let allItems = [];
-        let currentFilter = 'all';
-        let currentSearch = '';
+        // ===== データ管理 =====
+        var appData = {
+            drops: [],
+            mix: [],
+            delivery: []
+        };
+        var currentPage = 'drops';
+        var currentSearch = '';
 
-        // データ取得
-        async function fetchItems() {
+        // コレクション名とページの対応
+        var COLLECTION_MAP = {
+            drops: 'ドロップリスト',
+            mix: 'MIX公式DB',
+            delivery: '納品アイテムDB'
+        };
+
+        // ===== データ取得 =====
+        async function fetchAllData() {
             try {
-                const snapshot = await db.collection('drops').get();
-                allItems = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-
-                // ドロップ率で降順ソート
-                allItems.sort((a, b) => (b.drop_rate || 0) - (a.drop_rate || 0));
-
-                renderItems();
+                var promises = Object.keys(COLLECTION_MAP).map(function(key) {
+                    return db.collection(COLLECTION_MAP[key]).get().then(function(snapshot) {
+                        appData[key] = snapshot.docs.map(function(doc) {
+                            return Object.assign({ id: doc.id }, doc.data());
+                        });
+                    });
+                });
+                await Promise.all(promises);
+                renderCurrentPage();
                 fetchSyncInfo();
-
             } catch (error) {
                 console.error('Fetch error:', error);
-                showError(error.message);
+                document.getElementById('resultCount').textContent = 'エラー: ' + error.message;
             }
         }
 
-        // 同期情報取得
         async function fetchSyncInfo() {
             try {
-                const doc = await db.collection('metadata').doc('last_sync').get();
+                var doc = await db.collection('metadata').doc('last_sync').get();
                 if (doc.exists) {
-                    const data = doc.data();
-                    const date = new Date(data.synced_at);
-                    const formatted = date.toLocaleDateString('ja-JP', {
-                        month: 'short', day: 'numeric',
-                        hour: '2-digit', minute: '2-digit'
+                    var data = doc.data();
+                    var date = new Date(data.synced_at);
+                    document.getElementById('syncInfo').textContent = '同期: ' + date.toLocaleDateString('ja-JP', {
+                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                     });
-                    document.getElementById('syncInfo').textContent = '最終同期: ' + formatted;
                 }
-            } catch (e) {
-                // 同期情報がなくてもエラーにしない
-            }
+            } catch (e) {}
         }
 
-        // フィルタリング
-        function getFilteredItems() {
-            return allItems.filter(item => {
-                // レアリティフィルター
-                if (currentFilter !== 'all') {
-                    if ((item.rarity || '').toLowerCase() !== currentFilter) {
-                        return false;
-                    }
-                }
-                // テキスト検索
-                if (currentSearch) {
-                    const search = currentSearch.toLowerCase();
-                    const matchMonster = (item.monster_name || '').toLowerCase().includes(search);
-                    const matchItem = (item.item_name || '').toLowerCase().includes(search);
-                    const matchNote = (item.note || '').toLowerCase().includes(search);
-                    return matchMonster || matchItem || matchNote;
-                }
-                return true;
+        // ===== フィルタリング =====
+        function getFilteredItems(pageKey) {
+            var items = appData[pageKey];
+            if (!currentSearch) return items;
+
+            var search = currentSearch.toLowerCase();
+            return items.filter(function(item) {
+                return Object.values(item).some(function(val) {
+                    return String(val).toLowerCase().indexOf(search) !== -1;
+                });
             });
         }
 
-        // レンダリング
-        function renderItems() {
-            const container = document.getElementById('itemList');
-            const filtered = getFilteredItems();
+        // ===== レンダリング =====
+        function renderCurrentPage() {
+            var filtered = getFilteredItems(currentPage);
+            document.getElementById('resultCount').textContent = filtered.length + '件';
 
-            document.getElementById('resultCount').textContent = 
-                filtered.length + '件' + (allItems.length !== filtered.length ? ' / ' + allItems.length + '件中' : '');
+            var container = document.getElementById('page-' + currentPage);
 
             if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">🔍</div>
-                        <p>該当するアイテムが見つかりません</p>
-                    </div>
-                `;
+                container.innerHTML = '<div class="empty-state"><p>該当データなし</p></div>';
                 return;
             }
 
-            container.innerHTML = filtered.map(item => {
-                const rarityClass = 'rarity-' + (item.rarity || 'common').toLowerCase();
-                return `
-                    <div class="item-card">
-                        <div class="monster-name">${escapeHtml(item.monster_name || '不明')}</div>
-                        <div class="item-name">${escapeHtml(item.item_name || '不明なアイテム')}</div>
-                        <div class="item-meta">
-                            <span class="rarity-badge ${rarityClass}">${escapeHtml(item.rarity || 'Common')}</span>
-                            <span class="drop-rate">Drop: <strong>${item.drop_rate || '?'}%</strong></span>
-                        </div>
-                        ${item.note ? `<div class="note">📝 ${escapeHtml(item.note)}</div>` : ''}
-                    </div>
-                `;
+            switch (currentPage) {
+                case 'drops': renderDrops(container, filtered); break;
+                case 'mix': renderMix(container, filtered); break;
+                case 'delivery': renderDelivery(container, filtered); break;
+            }
+        }
+
+        function renderDrops(container, items) {
+            container.innerHTML = items.map(function(item) {
+                var rarityClass = 'rarity-' + (item.rarity || 'common').toLowerCase();
+                return '<div class="card drop-card">' +
+                    '<div class="monster-name">👾 ' + esc(item.monster_name || '') + '</div>' +
+                    '<div class="item-name">' + esc(item.item_name || '') + '</div>' +
+                    '<div class="meta">' +
+                        '<span class="rarity-badge ' + rarityClass + '">' + esc(item.rarity || '') + '</span>' +
+                        '<span class="drop-rate">Drop: <strong>' + (item.drop_rate || '?') + '%</strong></span>' +
+                    '</div>' +
+                    (item.note ? '<div class="note">📝 ' + esc(item.note) + '</div>' : '') +
+                '</div>';
             }).join('');
         }
 
-        // エラー表示
-        function showError(message) {
-            const container = document.getElementById('itemList');
-            container.innerHTML = `
-                <div class="error-msg">
-                    <div class="icon">⚠️</div>
-                    <p>データの取得に失敗しました</p>
-                    <p style="font-size:0.75rem; margin-top:8px; color:var(--text-secondary)">
-                        ${escapeHtml(message)}<br><br>
-                        firebaseConfig が正しく設定されているか確認してください。
-                    </p>
-                </div>
-            `;
-            document.getElementById('resultCount').textContent = 'エラー';
+        function renderMix(container, items) {
+            container.innerHTML = items.map(function(item) {
+                var dropBadge = item['Drop可'] === '〇' ? '<span class="droppable">Drop可</span>' : '';
+                var mixLv = item['MIX Lv'] || item['MIX_Lv'] || '-';
+                return '<div class="card mix-card">' +
+                    '<div class="core-name">' + esc(item['コア名'] || '') + dropBadge + '</div>' +
+                    '<div class="core-info">' +
+                        '<span>種族: ' + esc(item['種族'] || '') + '</span>' +
+                        '<span>Lv: ' + (item['基本Lv'] || item['基本_Lv'] || '-') + '</span>' +
+                        '<span>MIX Lv: ' + mixLv + '</span>' +
+                    '</div>' +
+                    (mixLv !== '-' ? '<div class="recipe">' +
+                        '<div class="recipe-row"><span class="recipe-label">メインコア</span><span class="recipe-value">' + esc(item['メインコア'] || '') + ' (EC' + (item['メインEC'] || '-') + ')</span></div>' +
+                        '<div class="recipe-row"><span class="recipe-label">サブコア</span><span class="recipe-value">' + esc(item['サブコア'] || '') + ' (EC' + (item['サブEC'] || '-') + ')</span></div>' +
+                    '</div>' : '') +
+                '</div>';
+            }).join('');
+        }
+
+        function renderDelivery(container, items) {
+            container.innerHTML = items.map(function(item) {
+                return '<div class="card delivery-card">' +
+                    '<div class="category">' + esc(item['大分類'] || '') + '</div>' +
+                    '<div class="item-name">' + esc(item['アイテム名'] || '') + '</div>' +
+                    '<div class="detail-row">' +
+                        '<span>個数: ' + (item['個数'] || '-') + '</span>' +
+                        '<span>MAP: ' + esc(item['マップ'] || '-') + '</span>' +
+                        '<span>MOB: ' + esc(item['モンスター'] || '-') + '</span>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
         }
 
         // XSS対策
-        function escapeHtml(str) {
-            const div = document.createElement('div');
+        function esc(str) {
+            var div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
         }
 
-        // ===== イベントリスナー =====
+        // ===== イベント =====
 
-        // 検索入力
-        const searchInput = document.getElementById('searchInput');
-        let searchTimeout;
-        searchInput.addEventListener('input', () => {
+        // タブ切替
+        document.querySelector('.tab-bar').addEventListener('click', function(e) {
+            var btn = e.target.closest('.tab-btn');
+            if (!btn) return;
+
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+
+            document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+            currentPage = btn.dataset.page;
+            document.getElementById('page-' + currentPage).classList.add('active');
+
+            renderCurrentPage();
+        });
+
+        // 検索
+        var searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', function(e) {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                currentSearch = searchInput.value.trim();
-                renderItems();
+            searchTimeout = setTimeout(function() {
+                currentSearch = e.target.value.trim();
+                renderCurrentPage();
             }, 200);
         });
 
-        // レアリティフィルター
-        document.getElementById('rarityFilters').addEventListener('click', (e) => {
-            const btn = e.target.closest('.filter-btn');
-            if (!btn) return;
-
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.dataset.rarity;
-            renderItems();
-        });
-
         // ===== 初期化 =====
-        fetchItems();
+        fetchAllData();
     </script>
 </body>
 </html>
