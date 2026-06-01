@@ -16,11 +16,7 @@
             --accent: #e94560;
             --accent-hover: #ff6b6b;
             --border: #2a2a4a;
-            --common: #b0b0b0;
             --uncommon: #4caf50;
-            --rare: #2196f3;
-            --epic: #9c27b0;
-            --legendary: #ff9800;
         }
 
         * {
@@ -37,7 +33,6 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* ヘッダー */
         .header {
             background: var(--bg-secondary);
             padding: 12px 16px;
@@ -54,7 +49,6 @@
             margin-bottom: 8px;
         }
 
-        /* ページ切替タブ */
         .tab-bar {
             display: flex;
             gap: 4px;
@@ -83,7 +77,6 @@
             transform: scale(0.95);
         }
 
-        /* 検索エリア */
         .search-area {
             padding: 10px 16px;
             background: var(--bg-secondary);
@@ -109,7 +102,6 @@
             color: var(--text-secondary);
         }
 
-        /* ステータスバー */
         .status-bar {
             padding: 6px 16px;
             font-size: 0.7rem;
@@ -118,7 +110,6 @@
             justify-content: space-between;
         }
 
-        /* ページコンテンツ */
         .page {
             display: none;
             padding: 0 12px 24px;
@@ -128,7 +119,6 @@
             display: block;
         }
 
-        /* カード共通 */
         .card {
             background: var(--bg-card);
             border-radius: 10px;
@@ -141,55 +131,7 @@
             transform: scale(0.98);
         }
 
-        /* ===== ドロップリスト用 ===== */
-        .drop-card .monster-name {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            margin-bottom: 3px;
-        }
-
-        .drop-card .item-name {
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-
-        .drop-card .meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .rarity-badge {
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.65rem;
-            font-weight: 600;
-        }
-
-        .rarity-common { background: rgba(176,176,176,0.2); color: var(--common); }
-        .rarity-uncommon { background: rgba(76,175,80,0.2); color: var(--uncommon); }
-        .rarity-rare { background: rgba(33,150,243,0.2); color: var(--rare); }
-        .rarity-epic { background: rgba(156,39,176,0.2); color: var(--epic); }
-        .rarity-legendary { background: rgba(255,152,0,0.2); color: var(--legendary); }
-
-        .drop-rate {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .drop-rate strong {
-            color: var(--text-primary);
-        }
-
-        .note {
-            margin-top: 6px;
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        /* ===== MIX公式DB用 ===== */
+        /* MIX公式DB */
         .mix-card .core-name {
             font-size: 1rem;
             font-weight: 600;
@@ -243,7 +185,7 @@
             margin-left: 6px;
         }
 
-        /* ===== 納品アイテムDB用 ===== */
+        /* 納品アイテムDB */
         .delivery-card .category {
             font-size: 0.65rem;
             color: var(--accent);
@@ -270,7 +212,6 @@
             border-radius: 4px;
         }
 
-        /* ローディング・空状態 */
         .loading, .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -289,7 +230,6 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* フッター */
         .footer {
             text-align: center;
             padding: 12px;
@@ -303,8 +243,7 @@
     <header class="header">
         <h1>⚔️ MMO Database</h1>
         <div class="tab-bar">
-            <button class="tab-btn active" data-page="drops">ドロップ</button>
-            <button class="tab-btn" data-page="mix">MIX公式</button>
+            <button class="tab-btn active" data-page="mix">MIX公式</button>
             <button class="tab-btn" data-page="delivery">納品アイテム</button>
         </div>
     </header>
@@ -320,17 +259,10 @@
         <span id="syncInfo"></span>
     </div>
 
-    <!-- ドロップリスト -->
-    <main class="page active" id="page-drops">
+    <main class="page active" id="page-mix">
         <div class="loading"><div class="spinner"></div><p>読み込み中...</p></div>
     </main>
 
-    <!-- MIX公式DB -->
-    <main class="page" id="page-mix">
-        <div class="loading"><div class="spinner"></div><p>読み込み中...</p></div>
-    </main>
-
-    <!-- 納品アイテムDB -->
     <main class="page" id="page-delivery">
         <div class="loading"><div class="spinner"></div><p>読み込み中...</p></div>
     </main>
@@ -339,19 +271,18 @@
         <p>Data synced from Google Spreadsheet via Firestore</p>
     </footer>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
     <script>
         // ===== Firebase設定 =====
         var firebaseConfig = {
-  apiKey: "AIzaSyBQbmQPaXDjItAGQx0QBPpZKUXrByAHIXs",
-  authDomain: "uppooooo.firebaseapp.com",
-  projectId: "uppooooo",
-  storageBucket: "uppooooo.firebasestorage.app",
-  messagingSenderId: "299004426367",
-  appId: "1:299004426367:web:64a30627d61b40da4de74a"
+            apiKey: "AIzaSyBQbmQPaXDjItAGQx0QBPpZKUXrByAHIXs",
+            authDomain: "uppooooo.firebaseapp.com",
+            projectId: "uppooooo",
+            storageBucket: "uppooooo.firebasestorage.app",
+            messagingSenderId: "299004426367",
+            appId: "1:299004426367:web:64a30627d61b40da4de74a"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -359,16 +290,13 @@
 
         // ===== データ管理 =====
         var appData = {
-            drops: [],
             mix: [],
             delivery: []
         };
-        var currentPage = 'drops';
+        var currentPage = 'mix';
         var currentSearch = '';
 
-        // コレクション名とページの対応
         var COLLECTION_MAP = {
-            drops: 'ドロップリスト',
             mix: 'MIX公式DB',
             delivery: '納品アイテムDB'
         };
@@ -409,7 +337,6 @@
         function getFilteredItems(pageKey) {
             var items = appData[pageKey];
             if (!currentSearch) return items;
-
             var search = currentSearch.toLowerCase();
             return items.filter(function(item) {
                 return Object.values(item).some(function(val) {
@@ -422,7 +349,6 @@
         function renderCurrentPage() {
             var filtered = getFilteredItems(currentPage);
             document.getElementById('resultCount').textContent = filtered.length + '件';
-
             var container = document.getElementById('page-' + currentPage);
 
             if (filtered.length === 0) {
@@ -431,25 +357,9 @@
             }
 
             switch (currentPage) {
-                case 'drops': renderDrops(container, filtered); break;
                 case 'mix': renderMix(container, filtered); break;
                 case 'delivery': renderDelivery(container, filtered); break;
             }
-        }
-
-        function renderDrops(container, items) {
-            container.innerHTML = items.map(function(item) {
-                var rarityClass = 'rarity-' + (item.rarity || 'common').toLowerCase();
-                return '<div class="card drop-card">' +
-                    '<div class="monster-name">👾 ' + esc(item.monster_name || '') + '</div>' +
-                    '<div class="item-name">' + esc(item.item_name || '') + '</div>' +
-                    '<div class="meta">' +
-                        '<span class="rarity-badge ' + rarityClass + '">' + esc(item.rarity || '') + '</span>' +
-                        '<span class="drop-rate">Drop: <strong>' + (item.drop_rate || '?') + '%</strong></span>' +
-                    '</div>' +
-                    (item.note ? '<div class="note">📝 ' + esc(item.note) + '</div>' : '') +
-                '</div>';
-            }).join('');
         }
 
         function renderMix(container, items) {
@@ -485,7 +395,6 @@
             }).join('');
         }
 
-        // XSS対策
         function esc(str) {
             var div = document.createElement('div');
             div.textContent = str;
@@ -493,23 +402,17 @@
         }
 
         // ===== イベント =====
-
-        // タブ切替
         document.querySelector('.tab-bar').addEventListener('click', function(e) {
             var btn = e.target.closest('.tab-btn');
             if (!btn) return;
-
             document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
             btn.classList.add('active');
-
             document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
             currentPage = btn.dataset.page;
             document.getElementById('page-' + currentPage).classList.add('active');
-
             renderCurrentPage();
         });
 
-        // 検索
         var searchTimeout;
         document.getElementById('searchInput').addEventListener('input', function(e) {
             clearTimeout(searchTimeout);
